@@ -1,21 +1,22 @@
 import {Injectable} from 'angular2/core';
 import {Http, Response} from 'angular2/http';
 import {Observable} from "rxjs/Observable";
-import {Poll} from './poll';
-import {Headers, RequestOptions} from "angular2/http";
+import {Poll} from '../utils/poll';
+import {RequestOptions, Headers} from "angular2/http";
 
 @Injectable()
-export class MainService {
+export class VoteService {
     constructor(private _http:Http){}
     baseUrl:string = "http://localhost:8000";
 
-    getPolls(){
-        let url = `${this.baseUrl}/polls/`;
+    vote(question_id:Number, choice:Number){
+        let url = `${this.baseUrl}/polls/${question_id}/vote/`;
+        let body = JSON.stringify({choice})
         let authHeader = new Headers();
         let token = this.getToken();
         console.log("get polls token: ",token);
         authHeader.append('Authorization', 'JWT ' + token);
-        return this._http.get(url, {headers:authHeader})
+        return this._http.put(url, body ,{headers:authHeader})
                 .map(res => res.json())
                 .catch(this.handleError);
 
@@ -25,12 +26,6 @@ export class MainService {
         return localStorage.getItem('id_token');
     }
 
-    getPoll(id:Number){
-        let url = `${this.baseUrl}/polls/${id}`
-        return this._http.get(url)
-                .map(res => res.json())
-                .catch(this.handleError);
-    }
 
     private handleError (error) {
         console.error("my error: ",error);
